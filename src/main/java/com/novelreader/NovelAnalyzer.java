@@ -42,14 +42,13 @@ public class NovelAnalyzer {
             
             // 4 & 5. 分析小说并保存结果
             logger.info("步骤4 & 5: 分析小说并保存结果");
-            String apiKey = Configuration.getApiKey();
-            if (apiKey == null || apiKey.isEmpty()) {
-                logger.error("未配置API密钥，请在config.properties中设置api.key");
-                System.exit(1);
-            }
+            logger.info("启动程序，读取配置...");
+            
+            // 检查配置
+            // 此处不再需要检查 API 密钥，因为已经在 Configuration 类初始化时验证
             
             // 创建API客户端
-            GeminiApiClient apiClient = new GeminiApiClient(apiKey, new RateLimiter(15));
+            ApiClient apiClient = ApiClientFactory.createApiClient(new RateLimiter(Configuration.getRateLimitPerMinute()));
             
             // 创建结果验证器和保存器
             ResultValidator validator = new ResultValidator();

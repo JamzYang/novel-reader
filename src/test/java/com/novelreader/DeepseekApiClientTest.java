@@ -1,19 +1,21 @@
 package com.novelreader;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 /**
  * Gemini API客户端的单元测试
  * 注意：这个测试类使用了Mockito进行模拟，需要添加Mockito依赖
  */
 @ExtendWith(MockitoExtension.class)
-public class GeminiApiClientTest {
+public class DeepseekApiClientTest {
     
     private ApiClient apiClient;
     
@@ -176,13 +178,11 @@ public class GeminiApiClientTest {
     
     @BeforeEach
     public void setUp() {
-        apiClient = ApiClientFactory.createApiClient("gemini",mockRateLimiter);
+        apiClient = ApiClientFactory.createApiClient(
+            "deepseek",
+            new RateLimiter(Configuration.getRateLimitPerMinute())
+        );
     }
-    
-
-    
-
-    
     /**
      * 测试API响应对象的创建和属性
      */

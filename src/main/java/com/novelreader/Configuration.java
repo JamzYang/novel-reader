@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,13 +19,16 @@ import java.util.Map;
 public class Configuration {
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
     
-    private static String apiKey;
+    // API提供商配置
+    private static Map<String, Map<String, String>> apiProviders = new HashMap<>();
+    private static String currentProvider = "deepseek"; // 默认使用gemini
+    
+    // 其他配置
     private static String inputFilePath;
     private static String outputDirectory;
-    private static int rateLimitPerMinute = 15; // 默认每分钟15次API调用
+    private static int rateLimitPerMinute = 1; // 默认每分钟15次API调用
     private static int threadCount = 10; // 默认10个线程
     private static String prompt;
-    public static String gptModelName = "gemini-2.0-flash";
     public static String analysisResultsDirPath = Paths.get("output","analysis").toString();
     public static String fileSliceDirPath = Paths.get("output","slices").toString();
 
@@ -43,11 +48,34 @@ public class Configuration {
         Yaml yaml = new Yaml();
         try (InputStream inputStream = new FileInputStream("apikey.yml")) {
             Map<String, Object> config = yaml.load(inputStream);
-            apiKey = (String) config.get("api_key");
-            logger.info("API key loaded successfully");
+            
+            // 解析API提供商配置
+            List<Map<String, Object>> gpts = (List<Map<String, Object>>) config.get("gpts");
+            if (gpts != null) {
+                for (Map<String, Object> providerConfig : gpts) {
+                    for (Map.Entry<String, Object> entry : providerConfig.entrySet()) {
+                        String providerName = entry.getKey();
+                        Map<String, String> providerSettings = new HashMap<>();
+                        
+                        Map<String, Object> settings = (Map<String, Object>) entry.getValue();
+                        for (Map.Entry<String, Object> setting : settings.entrySet()) {
+                            providerSettings.put(setting.getKey(), String.valueOf(setting.getValue()));
+                        }
+                        
+                        apiProviders.put(providerName, providerSettings);
+                        logger.info("加载API提供商配置: {}", providerName);
+                    }
+                }
+            }
+            
+            if (apiProviders.isEmpty()) {
+                throw new RuntimeException("No API providers found in configuration");
+            }
+            
+            logger.info("API配置加载成功");
         } catch (IOException e) {
-            logger.error("Failed to load API key configuration", e);
-            throw new RuntimeException("Failed to load API key configuration", e);
+            logger.error("加载API配置失败", e);
+            throw new RuntimeException("Failed to load API configuration", e);
         }
         
         // 设置默认值或从命令行参数获取
@@ -78,19 +106,58 @@ public class Configuration {
                 "对伏笔、线索等进行提示，并分析其可能的影响。";
     }
     
-    // 静态 Getters
-    public static String getApiKey() {
-        return apiKey;
+    /**
+     * 获取当前的API提供商
+     * @return 当前API提供商的名称
+     */
+    public static String getCurrentProvider() {
+        return currentProvider;
     }
     
-    public static String getInputFilePath() {
-        return inputFilePath;
+    /**
+     * 设置当前的API提供商
+     * @param providerName 提供商名称
+     */
+    public static void setCurrentProvider(String providerName) {
+        if (!apiProviders.containsKey(providerName)) {
+            throw new IllegalArgumentException("Unknown API provider: " + providerName);
+        }
+        currentProvider = providerName;
+        logger.info("切换到API提供商: {}", providerName);
     }
     
-    public static String getOutputDirectory() {
-        return outputDirectory;
+    /**
+     * 获取指定API提供商的配置项
+     * @param providerName 提供商名称
+     * @param key 配置键
+     * @return 配置值
+     */
+    public static String getProviderConfig(String providerName, String key) {
+        Map<String, String> providerConfig = apiProviders.get(providerName);
+        if (providerConfig == null) {
+            throw new IllegalArgumentException("Unknown API provider: " + providerName);
+        }
+        return providerConfig.get(key);
     }
     
+    /**
+     * 获取当前API提供商的配置项
+     * @param key 配置键
+     * @return 配置值
+     */
+    public static String getCurrentProviderConfig(String key) {
+        return getProviderConfig(currentProvider, key);
+    }
+    
+    /**
+     * 获取所有已配置的API提供商名称
+     * @return API提供商名称列表
+     */
+    public static Iterable<String> getProviderNames() {
+        return apiProviders.keySet();
+    }
+
+
     public static int getRateLimitPerMinute() {
         return rateLimitPerMinute;
     }
@@ -102,13 +169,5 @@ public class Configuration {
     public static String getPrompt() {
         return prompt;
     }
-    
-    // 静态 Setters
-    public static void setInputFilePath(String path) {
-        inputFilePath = path;
-    }
-    
-    public static void setOutputDirectory(String directory) {
-        outputDirectory = directory;
-    }
+
 }

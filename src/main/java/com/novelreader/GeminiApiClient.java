@@ -18,18 +18,16 @@ import java.util.Map;
 /**
  * Gemini API客户端，封装API调用细节
  */
-public class GeminiApiClient {
+public class GeminiApiClient implements ApiClient {
     private static final Logger logger = LoggerFactory.getLogger(GeminiApiClient.class);
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s";
     private static final int TIMEOUT_SECONDS = 240;
+    private static final String PROVIDER_NAME = "gemini";
     
-    private final String apiKey;
     private final RateLimiter rateLimiter;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     
-    public GeminiApiClient(String apiKey, RateLimiter rateLimiter) {
-        this.apiKey = apiKey;
+    public GeminiApiClient(RateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
@@ -37,18 +35,30 @@ public class GeminiApiClient {
         this.objectMapper = new ObjectMapper();
     }
     
+    @Override
+    public String getProviderName() {
+        return PROVIDER_NAME;
+    }
+    
     /**
      * 分析章节组内容
      * @param request API请求
      * @return API响应
      */
+    @Override
     public ApiResponse analyzeChapterGroup(ApiRequest request) {
         try {
             rateLimiter.acquire();
             
-            String url = String.format(API_URL, 
-                    URLEncoder.encode(request.getModelName(), StandardCharsets.UTF_8), 
-                    URLEncoder.encode(apiKey, StandardCharsets.UTF_8));
+            // 从配置中获取URL和API密钥
+            String apiKey = Configuration.getProviderConfig(PROVIDER_NAME, "api_key");
+            String modelName = Configuration.getProviderConfig(PROVIDER_NAME, "model");
+            String urlTemplate = Configuration.getProviderConfig(PROVIDER_NAME, "url");
+            
+            // 替换URL模板中的占位符
+            String url = urlTemplate
+                    .replace("{model}", URLEncoder.encode(modelName, StandardCharsets.UTF_8))
+                    .replace("{api_key}", URLEncoder.encode(apiKey, StandardCharsets.UTF_8));
             
             Map<String, Object> requestBody = new HashMap<>();
             Map<String, Object> contents = new HashMap<>();

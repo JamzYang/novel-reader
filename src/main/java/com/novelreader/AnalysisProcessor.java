@@ -25,7 +25,7 @@ public class AnalysisProcessor {
     private static final int MAX_RETRY_COUNT = 3;
     private static final int THREAD_COUNT = 10;
     
-    private final GeminiApiClient apiClient;
+    private final ApiClient apiClient;
     private final ResultValidator validator;
     private final ResultSaver resultSaver;
     private final String outputDirectory;
@@ -34,13 +34,13 @@ public class AnalysisProcessor {
     /**
      * 构造函数
      * 
-     * @param apiClient Gemini API客户端
+     * @param apiClient API客户端
      * @param validator 结果验证器
      * @param resultSaver 结果保存器
      * @param outputDirectory 输出目录
      * @param finalOutputFile 最终输出文件路径
      */
-    public AnalysisProcessor(GeminiApiClient apiClient, ResultValidator validator, ResultSaver resultSaver, 
+    public AnalysisProcessor(ApiClient apiClient, ResultValidator validator, ResultSaver resultSaver, 
                              String outputDirectory, String finalOutputFile) {
         this.apiClient = apiClient;
         this.validator = validator;
@@ -153,7 +153,7 @@ public class AnalysisProcessor {
         int expectedChapterCount = chapterGroup.getEndChapterNumber() - chapterGroup.getStartChapterNumber() + 1;
         
         // 创建API请求
-        ApiRequest request = new ApiRequest(Configuration.gptModelName,Configuration.getPrompt(),chapterGroup.getContent());
+        ApiRequest request = new ApiRequest(Configuration.getPrompt(),chapterGroup.getContent());
         int retryCount = 0;
         // 尝试调用API并验证结果
         for (; retryCount <= MAX_RETRY_COUNT; retryCount++) {

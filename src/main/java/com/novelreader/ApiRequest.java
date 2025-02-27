@@ -4,25 +4,15 @@ package com.novelreader;
  * API请求对象，封装API请求参数
  */
 public class ApiRequest {
-    private String modelName;
     private String prompt;
     private String chapterGroupContent;
     
-    public ApiRequest(String modelName, String prompt, String chapterGroupContent) {
-        this.modelName = modelName;
+    public ApiRequest(String prompt, String chapterGroupContent) {
         this.prompt = prompt;
         this.chapterGroupContent = chapterGroupContent;
     }
     
     // Getters and Setters
-    public String getModelName() {
-        return modelName;
-    }
-    
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
-    
     public String getPrompt() {
         return prompt;
     }

@@ -1,2 +1,9 @@
-# gemini api key
-api_key: AIzaSyB8-fJRn3WYRpoesMhogiZ1Gz2oxdB0al0
+gpts:
+  - gemini:
+      model: gemini-2.0-flash
+      url: https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}
+      api_key: AIzaSyB8-fJRn3WYRpoesMhogiZ1Gz2oxdB0al0
+  - deepseek:
+      deepseek: deepseek-chat
+      url: https://api.deepseek.com/chat/completions
+      api_key: sk-f9a841930854420dada3ebf541a4f283
