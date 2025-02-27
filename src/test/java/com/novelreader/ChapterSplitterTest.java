@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +86,7 @@ public class ChapterSplitterTest {
         
         // 执行写入
         String outputDir = tempDir.toString();
-        chapterSplitter.writeChapterGroupToFile(testGroup, outputDir);
+        chapterSplitter.writeChapterGroupToFile(testGroup);
         
         // 验证文件是否生成
         File outputFile = new File(outputDir, testGroup.getFileName());

@@ -24,7 +24,9 @@ public class Configuration {
     private static int threadCount = 10; // 默认10个线程
     private static String prompt;
     public static String gptModelName = "gemini-2.0-flash";
-    
+    public static String analysisResultsDirPath = Paths.get("output","analysis").toString();
+    public static String fileSliceDirPath = Paths.get("output","slices").toString();
+
     // 静态初始化块，替代原来的构造函数
     static {
         loadConfiguration();

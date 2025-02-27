@@ -30,6 +30,7 @@ build/
 .idea/
 *.iml
 out/
+output/slices
 
 # Eclipse
 .classpath

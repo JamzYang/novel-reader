@@ -50,7 +50,7 @@ public class ChapterSplitter {
             }
             
             // 写入文件
-            writeChapterGroupToFile(group, outputDirectory);
+            writeChapterGroupToFile(group);
             
             chapterGroups.add(group);
             logger.info("Created chapter group {}: {} chapters ({})", 
@@ -62,11 +62,11 @@ public class ChapterSplitter {
     
     /**
      * 将章节组写入文件
+     *
      * @param group 章节组
-     * @param outputDirectory 输出目录
      */
-    public void writeChapterGroupToFile(ChapterGroup group, String outputDirectory) {
-        String filePath = outputDirectory + File.separator + group.getFileName();
+    public void writeChapterGroupToFile(ChapterGroup group) {
+        String filePath = Configuration.fileSliceDirPath + File.separator + group.getFileName();
         
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write(group.getContent());
