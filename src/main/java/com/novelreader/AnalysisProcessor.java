@@ -1,5 +1,9 @@
 package com.novelreader;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +63,20 @@ public class AnalysisProcessor {
      */
     public boolean processChapterGroups(List<ChapterGroup> chapterGroups) {
         logger.info("开始处理{}个章节组", chapterGroups.size());
-        
+        try {
+            List<Path> analysisPaths = Files.list(Paths.get(Configuration.analysisResultsDirPath))
+                                           .collect(Collectors.toList());
+            chapterGroups = chapterGroups.stream()
+                .filter(it ->
+                    analysisPaths.stream().noneMatch(p ->
+                        p.getFileName().toString().equals(it.getAnalysisFileName())
+                    )
+                )
+                .collect(Collectors.toList());
+        }catch (Exception e) {
+            logger.warn("过滤已分析文件",e);
+        }
+
         // 创建线程池
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         List<CompletableFuture<String>> futures = new ArrayList<>();
