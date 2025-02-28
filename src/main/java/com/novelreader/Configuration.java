@@ -21,7 +21,7 @@ public class Configuration {
     
     // API提供商配置
     private static Map<String, Map<String, String>> apiProviders = new HashMap<>();
-    private static String currentProvider = "deepseek"; // 默认使用gemini
+    private static String currentProvider = "gemini"; // 默认使用gemini
     
     // 其他配置
     private static String inputFilePath;

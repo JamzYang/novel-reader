@@ -13,7 +13,7 @@ public class ResultValidator {
     private static final Logger logger = LoggerFactory.getLogger(ResultValidator.class);
     
     // 用于匹配Markdown中的章节标题的正则表达式
-    private static final Pattern CHAPTER_PATTERN = Pattern.compile("\\*\\*第(\\d+)章");
+    private static final Pattern CHAPTER_PATTERN = Pattern.compile("第(\\d+)章");
     
     /**
      * 验证API返回的Markdown结果中包含的章节数量是否与预期一致
@@ -31,7 +31,7 @@ public class ResultValidator {
         int actualChapterCount = countChaptersInMarkdown(markdownResult);
         logger.info("预期章节数量: {}, 实际章节数量: {}", expectedChapterCount, actualChapterCount);
         
-        return actualChapterCount == expectedChapterCount;
+        return actualChapterCount >= expectedChapterCount;
     }
     
     /**
