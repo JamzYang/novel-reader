@@ -50,7 +50,7 @@ public class ChapterSplitter {
             }
             
             // 写入文件
-            writeChapterGroupToFile(group);
+//            writeChapterGroupToFile(group); //todo 需要保存章节组时再放开
             
             chapterGroups.add(group);
             logger.info("Created chapter group {}: {} chapters ({})", 

@@ -76,7 +76,7 @@ public class AnalysisProcessorTest {
         when(mockValidator.validateResult(anyString(), anyInt())).thenReturn(true);
         when(mockResultSaver.saveChapterGroupResult(eq(group1), anyString(), eq(outputDirectory))).thenReturn(resultFile1);
         when(mockResultSaver.saveChapterGroupResult(eq(group2), anyString(), eq(outputDirectory))).thenReturn(resultFile2);
-        when(mockResultSaver.mergeResults(Arrays.asList(resultFile1, resultFile2), finalOutputFile)).thenReturn(true);
+        when(mockResultSaver.mergeResults(finalOutputFile)).thenReturn(true);
         
         // 执行处理
         boolean result = processor.processChapterGroups(chapterGroups);
@@ -89,7 +89,7 @@ public class AnalysisProcessorTest {
         verify(mockValidator, times(2)).validateResult(anyString(), anyInt());
         verify(mockResultSaver, times(1)).saveChapterGroupResult(eq(group1), anyString(), eq(outputDirectory));
         verify(mockResultSaver, times(1)).saveChapterGroupResult(eq(group2), anyString(), eq(outputDirectory));
-        verify(mockResultSaver, times(1)).mergeResults(Arrays.asList(resultFile1, resultFile2), finalOutputFile);
+        verify(mockResultSaver, times(1)).mergeResults(finalOutputFile);
     }
     
     @Test
@@ -109,7 +109,7 @@ public class AnalysisProcessorTest {
         when(mockApiClient.analyzeChapterGroup(any())).thenReturn(failureResponse, successResponse);
         when(mockValidator.validateResult(anyString(), anyInt())).thenReturn(true);
         when(mockResultSaver.saveChapterGroupResult(eq(group), anyString(), eq(outputDirectory))).thenReturn(resultFile);
-        when(mockResultSaver.mergeResults(List.of(resultFile), finalOutputFile)).thenReturn(true);
+        when(mockResultSaver.mergeResults(finalOutputFile)).thenReturn(true);
         
         // 执行处理
         boolean result = processor.processChapterGroups(chapterGroups);
@@ -121,7 +121,7 @@ public class AnalysisProcessorTest {
         verify(mockApiClient, times(2)).analyzeChapterGroup(any());
         verify(mockValidator, times(1)).validateResult(anyString(), anyInt());
         verify(mockResultSaver, times(1)).saveChapterGroupResult(eq(group), anyString(), eq(outputDirectory));
-        verify(mockResultSaver, times(1)).mergeResults(List.of(resultFile), finalOutputFile);
+        verify(mockResultSaver, times(1)).mergeResults(finalOutputFile);
     }
     
     @Test
@@ -140,7 +140,7 @@ public class AnalysisProcessorTest {
         when(mockApiClient.analyzeChapterGroup(any())).thenReturn(successResponse);
         when(mockValidator.validateResult(anyString(), anyInt())).thenReturn(false, true);
         when(mockResultSaver.saveChapterGroupResult(eq(group), anyString(), eq(outputDirectory))).thenReturn(resultFile);
-        when(mockResultSaver.mergeResults(List.of(resultFile), finalOutputFile)).thenReturn(true);
+        when(mockResultSaver.mergeResults(finalOutputFile)).thenReturn(true);
         
         // 执行处理
         boolean result = processor.processChapterGroups(chapterGroups);
@@ -152,7 +152,7 @@ public class AnalysisProcessorTest {
         verify(mockApiClient, times(2)).analyzeChapterGroup(any());
         verify(mockValidator, times(2)).validateResult(anyString(), anyInt());
         verify(mockResultSaver, times(1)).saveChapterGroupResult(eq(group), anyString(), eq(outputDirectory));
-        verify(mockResultSaver, times(1)).mergeResults(List.of(resultFile), finalOutputFile);
+        verify(mockResultSaver, times(1)).mergeResults(finalOutputFile);
     }
     
     @Test
@@ -179,7 +179,7 @@ public class AnalysisProcessorTest {
         verify(mockApiClient, times(4)).analyzeChapterGroup(any());
         verify(mockValidator, times(4)).validateResult(anyString(), anyInt());
         verify(mockResultSaver, never()).saveChapterGroupResult(any(), anyString(), anyString());
-        verify(mockResultSaver, never()).mergeResults(anyList(), anyString());
+        verify(mockResultSaver, never()).mergeResults(anyString());
     }
     
     @Test
@@ -207,6 +207,6 @@ public class AnalysisProcessorTest {
         verify(mockApiClient, times(1)).analyzeChapterGroup(any());
         verify(mockValidator, times(1)).validateResult(anyString(), anyInt());
         verify(mockResultSaver, times(1)).saveChapterGroupResult(eq(group), anyString(), eq(outputDirectory));
-        verify(mockResultSaver, never()).mergeResults(anyList(), anyString());
+        verify(mockResultSaver, never()).mergeResults(anyString());
     }
 }

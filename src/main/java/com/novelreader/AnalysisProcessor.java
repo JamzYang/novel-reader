@@ -124,17 +124,12 @@ public class AnalysisProcessor {
         logger.info("成功处理了{}/{}个章节组", successCount.get(), chapterGroups.size());
         
         // 合并结果
-        if (!resultFiles.isEmpty()) {
-            boolean mergeResult = resultSaver.mergeResults(resultFiles, finalOutputFile);
-            if (mergeResult) {
-                logger.info("成功合并所有分析结果到: {}", finalOutputFile);
-                return true;
-            } else {
-                logger.error("合并分析结果失败");
-                return false;
-            }
+        boolean mergeResult = resultSaver.mergeResults(finalOutputFile);
+        if (mergeResult) {
+            logger.info("成功合并所有分析结果到: {}", finalOutputFile);
+            return true;
         } else {
-            logger.error("没有成功处理的章节组，无法合并结果");
+            logger.error("合并分析结果失败");
             return false;
         }
     }

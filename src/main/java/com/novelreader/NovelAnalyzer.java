@@ -55,7 +55,7 @@ public class NovelAnalyzer {
             ResultSaver resultSaver = new ResultSaver();
             
             // 创建分析处理器
-            String finalOutputFile = Paths.get(Configuration.analysisResultsDirPath, "novel_analysis_results.json").toString();
+            String finalOutputFile = Paths.get("output", "全本总结.md").toString();
             AnalysisProcessor processor = new AnalysisProcessor(
                     apiClient, validator, resultSaver, Configuration.analysisResultsDirPath, finalOutputFile);
             

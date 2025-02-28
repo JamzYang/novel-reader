@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 结果保存器，用于保存和合并Gemini API的分析结果
@@ -72,45 +74,70 @@ public class ResultSaver {
     }
     
     /**
-     * 合并所有章节组的分析结果到一个JSON文件
+     * 合并所有章节组的分析结果到一个markdown文件
      * 
-     * @param resultFiles 所有章节组分析结果的文件路径列表
      * @param outputFile 输出文件路径
      * @return 是否成功合并
      */
-    public boolean mergeResults(List<String> resultFiles, String outputFile) {
+    public boolean mergeResults(String outputFile) {
+        Path analysisResultPath = Paths.get(Configuration.analysisResultsDirPath);
         try {
-            // 创建最终的JSON结构
-            JsonObject finalResult = new JsonObject();
-            JsonArray analysisResults = new JsonArray();
+            // 获取目录中的所有JSON文件
+            List<Path> resultFiles = Files.list(analysisResultPath)
+                    .filter(path -> path.toString().endsWith(".json"))
+                    .sorted() // 按文件名自然排序
+                    .collect(Collectors.toList());
             
-            // 按文件名排序（确保章节顺序正确）
-            resultFiles.sort(String::compareTo);
+            // 创建StringBuilder来构建最终的markdown内容
+            StringBuilder markdownContent = new StringBuilder();
             
             // 处理每个结果文件
-            for (String filePath : resultFiles) {
+            for (Path filePath : resultFiles) {
                 try {
-                    String content = new String(Files.readAllBytes(Paths.get(filePath)));
+                    // 从文件名中提取标题（例如：从"001第1-10章_分析.json"提取"第1-10章"）
+                    String fileName = filePath.getFileName().toString();
+                    String titlePart = fileName.replaceAll("^\\d+第(.*?)_分析\\.json$", "$1");
+                    
+                    // 添加二级标题
+                    markdownContent.append("## ").append(titlePart).append("\n\n");
+                    
+                    // 读取并解析JSON文件
+                    String content = new String(Files.readAllBytes(filePath));
                     JsonObject resultJson = gson.fromJson(content, JsonObject.class);
-                    String markdownResult = resultJson.get("markdownResult").getAsString();
                     
-                    // 解析Markdown结果中的每个章节
-                    List<JsonObject> chapterAnalyses = parseChaptersFromMarkdown(markdownResult);
-                    
-                    // 添加到最终结果中
-                    for (JsonObject chapterAnalysis : chapterAnalyses) {
-                        analysisResults.add(chapterAnalysis);
+                    // 获取markdownResult字段
+                    if (resultJson.has("markdownResult")) {
+                        String markdownResultStr = resultJson.get("markdownResult").getAsString();
+                        
+                        // 解析markdownResult中的JSON以获取text字段
+                        JsonObject markdownResultJson = gson.fromJson(markdownResultStr, JsonObject.class);
+                        if (markdownResultJson.has("candidates") && 
+                            markdownResultJson.getAsJsonArray("candidates").size() > 0) {
+                            
+                            JsonObject candidate = markdownResultJson.getAsJsonArray("candidates").get(0).getAsJsonObject();
+                            if (candidate.has("content") && 
+                                candidate.getAsJsonObject("content").has("parts") &&
+                                candidate.getAsJsonObject("content").getAsJsonArray("parts").size() > 0) {
+                                
+                                JsonObject part = candidate.getAsJsonObject("content")
+                                                         .getAsJsonArray("parts").get(0).getAsJsonObject();
+                                
+                                if (part.has("text")) {
+                                    // 获取text字段的内容并添加到markdown内容中
+                                    String text = part.get("text").getAsString();
+                                    markdownContent.append(text).append("\n\n");
+                                }
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     logger.error("处理结果文件失败: {}, 错误: {}", filePath, e.getMessage(), e);
                 }
             }
             
-            finalResult.add("analysis_results", analysisResults);
-            
-            // 写入最终JSON文件
+            // 写入最终markdown文件
             try (FileWriter writer = new FileWriter(outputFile)) {
-                gson.toJson(finalResult, writer);
+                writer.write(markdownContent.toString());
             }
             
             logger.info("已合并所有分析结果到: {}", outputFile);

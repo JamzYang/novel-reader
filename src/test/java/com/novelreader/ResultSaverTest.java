@@ -169,12 +169,10 @@ public class ResultSaverTest {
         
         // 保存测试文件
         String outputPath = tempDir.toString();
-        String resultFilePath1 = resultSaver.saveChapterGroupResult(group1, markdownResult1, outputPath);
-        String resultFilePath2 = resultSaver.saveChapterGroupResult(group2, markdownResult2, outputPath);
-        
+
         // 执行合并
         String mergedFilePath = Paths.get(outputPath, "merged_results.json").toString();
-        boolean mergeResult = resultSaver.mergeResults(Arrays.asList(resultFilePath1, resultFilePath2), mergedFilePath);
+        boolean mergeResult = resultSaver.mergeResults(mergedFilePath);
         
         // 断言结果
         assertTrue(mergeResult, "合并结果应返回true");
@@ -208,7 +206,7 @@ public class ResultSaverTest {
         String mergedFilePath = Paths.get(tempDir.toString(), "empty_merged_results.json").toString();
         
         // 执行合并
-        boolean mergeResult = resultSaver.mergeResults(emptyFileList, mergedFilePath);
+        boolean mergeResult = resultSaver.mergeResults(mergedFilePath);
         
         // 断言结果
         assertFalse(mergeResult, "文件列表为空，合并失败");
